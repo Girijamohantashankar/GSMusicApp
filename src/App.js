@@ -42,7 +42,7 @@ function App() {
   useEffect(() => {
     const hideLoaderTimeout = setTimeout(() => {
       setIsLoading(false);
-    }, 1500); // Hide loader after 3 seconds
+    }, 2500); // Hide loader after 3 seconds
 
     return () => {
       clearTimeout(hideLoaderTimeout);
