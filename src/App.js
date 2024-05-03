@@ -6,10 +6,12 @@ import audioClip from './loader.mp3'; // Import your audio clip
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [loaderVisible, setLoaderVisible] = useState(true);
 
   useEffect(() => {
     const audio = new Audio(audioClip);
     let audioPlayed = false;
+    let startTime = Date.now();
 
     // Function to handle audio play
     const playAudio = () => {
@@ -25,6 +27,9 @@ function App() {
         playAudio();
         setIsLoading(false);
       }
+      if (loaderVisible && (Date.now() - startTime) >= 10000) {
+        setLoaderVisible(false);
+      }
     };
 
     // Add event listeners for user interaction events
@@ -37,12 +42,12 @@ function App() {
       document.removeEventListener('keydown', handleInteraction);
       audio.pause(); // Pause the audio if component unmounts
     };
-  }, []);
+  }, [loaderVisible]);
 
   useEffect(() => {
     const hideLoaderTimeout = setTimeout(() => {
       setIsLoading(false);
-    }, 1500); // Hide loader after 3 seconds
+    }, 15000); // Hide loader after 15 seconds
 
     return () => {
       clearTimeout(hideLoaderTimeout);
@@ -51,17 +56,17 @@ function App() {
 
   return (
     <>
-      {isLoading ? (
-        // Show the loader component while isLoading is true
+      {loaderVisible && (
         <div className="loader-container">
           <Loader />
         </div>
-      ) : (
-        // Show the music player app when isLoading becomes false
+      )}
+      {!isLoading && !loaderVisible && (
         <Musicplayer />
       )}
     </>
   );
 }
+
 
 export default App;
