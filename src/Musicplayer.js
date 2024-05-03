@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./Musicplayer.css";
 import PopupMessage from "./PopupMessage";
-import Loader from './Loader.js';
+
 const MusicPlayer = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -50,17 +49,13 @@ const MusicPlayer = () => {
         setSongs(data);
         if (data.length > 0) {
           const storedIndex = localStorage.getItem("currentSongIndex");
+          // console.log(data[storedIndex], "g");
           setCurrentSongImage(`${data[storedIndex].image}`);
           audioRef.current.src = `${data[storedIndex].audio}`;
         }
-        setIsLoading(false); // Set loading to false after successful API fetch
       })
-      .catch((error) => {
-        console.error("Error fetching songs:", error);
-        setIsLoading(false); // Set loading to false on error
-      });
+      .catch((error) => console.error("Error fetching songs:", error));
   }, [currentSongIndex]);
-
 
   // Loacl storage Save the index value
   useEffect(() => {
@@ -230,8 +225,6 @@ const MusicPlayer = () => {
 
   return (
     <div className="music-container">
-      {isLoading ? ( 
-      <div className="music-container">
       {showPopup && (
         <div className="popup">
           <div className="popup-content">
@@ -246,8 +239,6 @@ const MusicPlayer = () => {
           </div>
         </div>
       )}
-      </div>
-         ) : (
       <div className="music-body">
         <div className="theme_changer">
           <i class="fa fa-gear fa-spin"></i>
@@ -345,7 +336,6 @@ const MusicPlayer = () => {
           </button>
         </div>
       </div>
-        )}
       <div className="song_filter">
         {showPopupMessage && (
           <PopupMessage
@@ -392,7 +382,6 @@ const MusicPlayer = () => {
           </div>
         ))}
       </div>
-       
     </div>
   );
 };
