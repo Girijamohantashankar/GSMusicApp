@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import Musicplayer from "./Musicplayer.js";
 import Loader from "./Loader.js"; 
-import audioClip from "./loader.mp3"; // Import your audio clip
+import audioClip from "./loader.mp3"; 
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -15,13 +15,6 @@ function App() {
       if (audio && audio.paused) {
         audio.play();
         audioPlayed = true;
-      }
-    };
-
-    const handleInteraction = () => {
-      if (!audioPlayed) {
-        playAudio();
-        setIsLoading(false);
       }
     };
 
