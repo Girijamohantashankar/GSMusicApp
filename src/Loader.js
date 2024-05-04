@@ -21,7 +21,7 @@ function Loader() {
           <div></div>
           <div></div>
         </div>
-        {/* <p className="cleck_me">Click Me</p> */}
+       
       </div>
     </div>
   );

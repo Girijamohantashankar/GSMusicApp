@@ -10,12 +10,12 @@ const MusicPlayer = () => {
   const [songs, setSongs] = useState([]);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const audioRef = useRef(null);
-  // const [audioLoaded, setAudioLoaded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [volume, setVolume] = useState(0.5);
   const [showPopup, setShowPopup] = useState(true);
   const [showPopupMessage, setShowPopupMessage] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   // Function to handle closing the popup
   const handleOk = () => {
@@ -28,9 +28,7 @@ const MusicPlayer = () => {
         handleOk();
       }
     };
-
     document.addEventListener("keydown", handleKeyDown);
-    // Cleanup the event listener when component unmounts
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
@@ -41,7 +39,8 @@ const MusicPlayer = () => {
     fetch("https://gsmusic-api.onrender.com/api/songs/")
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to fetch songs");
+          // throw new Error("Failed to fetch songs");
+          throw new alert("Failed to fetch songs");
         }
         return response.json();
       })
@@ -49,7 +48,6 @@ const MusicPlayer = () => {
         setSongs(data);
         if (data.length > 0) {
           const storedIndex = localStorage.getItem("currentSongIndex");
-          // console.log(data[storedIndex], "g");
           setCurrentSongImage(`${data[storedIndex].image}`);
           audioRef.current.src = `${data[storedIndex].audio}`;
         }
@@ -71,6 +69,7 @@ const MusicPlayer = () => {
 
   // Function to handle playing the current song
   const handlePlay = () => {
+    setIsImageLoaded(false);
     const playPromise = audioRef.current.play();
     if (playPromise !== undefined) {
       playPromise
@@ -105,13 +104,9 @@ const MusicPlayer = () => {
     setCurrentSongIndex(newIndex);
     setCurrentSongImage(`${songs[newIndex].image}`);
     audioRef.current.src = `${songs[newIndex].audio}`;
-
-    // Event listener for the 'load' event to ensure the new source is fully loaded
     audioRef.current.addEventListener("loadeddata", () => {
       handlePlay();
     });
-
-    // Check if the audio element is already loaded
     if (audioRef.current.readyState >= 2) {
       handlePlay();
     }
@@ -121,7 +116,6 @@ const MusicPlayer = () => {
   const playPauseToggle = () => {
     if (isPlaying) {
       audioRef.current.pause();
-      setIsPlaying(false);
     } else {
       handlePlay();
       setIsPlaying(true);
@@ -130,9 +124,7 @@ const MusicPlayer = () => {
 
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.onloadeddata = () => {
-        // setAudioLoaded(true);vbbcfbcbcbcn
-      };
+      audioRef.current.onloadeddata = () => {};
       audioRef.current.onplay = () => {
         setIsPlaying(true);
       };
@@ -144,7 +136,7 @@ const MusicPlayer = () => {
       };
       audioRef.current.onended = handleNext;
     }
-  }); 
+  });
 
   // Function to handle progress change
   const handleProgressChange = (e) => {
@@ -173,7 +165,6 @@ const MusicPlayer = () => {
   const fwa = (event) => {
     const newVolume = parseFloat(event.target.value);
     setVolume(newVolume);
-    // Update audio volume
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
     }
@@ -197,6 +188,7 @@ const MusicPlayer = () => {
     audioRef.current.src = songs[index].audio;
     audioRef.current.onloadeddata = () => {
       handlePlay();
+      setIsImageLoaded(false);
     };
   };
 
@@ -223,6 +215,16 @@ const MusicPlayer = () => {
     }
   };
 
+  // Function to handle image load
+  const handleImageLoad = () => {
+    setIsImageLoaded(true);
+  };
+  const imageLoader =
+    !isImageLoaded && !isPlaying ? (
+      <div className="image-loader">
+        <div className="load"></div>
+      </div>
+    ) : null;
   return (
     <div className="music-container">
       {showPopup && (
@@ -270,8 +272,15 @@ const MusicPlayer = () => {
           </button>
         </div>
         <div className="music-img">
-          <img src={currentSongImage} alt="song-images" id="img" />
+          {imageLoader}
+          <img
+            src={currentSongImage}
+            alt="song-images"
+            id="img"
+            onLoad={handleImageLoad}
+          />
         </div>
+
         <div className="music-info">
           <h2 id="title" className="scrolling-title">
             {songs.length > 0 ? songs[currentSongIndex].title : "No Title"}
@@ -284,7 +293,6 @@ const MusicPlayer = () => {
         <audio
           id="audio"
           ref={audioRef}
-          // onLoadedData={() => setAudioLoaded(true)}
           onTimeUpdate={() => setCurrentTime(audioRef.current.currentTime)}
           onDurationChange={() => setDuration(audioRef.current.duration)}
         ></audio>
